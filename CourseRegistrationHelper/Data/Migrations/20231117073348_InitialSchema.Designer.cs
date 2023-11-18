@@ -4,6 +4,7 @@ using CourseRegistrationHelper.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CourseRegistrationHelper.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231117073348_InitialSchema")]
+    partial class InitialSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +23,57 @@ namespace CourseRegistrationHelper.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("College", b =>
+                {
+                    b.Property<int>("CollegeId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CollegeId"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UniversityId")
+                        .HasColumnType("int");
+
+                    b.HasKey("CollegeId");
+
+                    b.HasIndex("UniversityId");
+
+                    b.ToTable("Colleges");
+                });
+
+            modelBuilder.Entity("Course", b =>
+                {
+                    b.Property<int>("CourseId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"), 1L, 1);
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("CourseId");
+
+                    b.HasIndex("DepartmentId");
+
+                    b.ToTable("Courses");
+                });
 
             modelBuilder.Entity("CourseRegistrationHelper.Models.ApplicationUser", b =>
                 {
@@ -87,58 +140,7 @@ namespace CourseRegistrationHelper.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.College", b =>
-                {
-                    b.Property<int>("CollegeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CollegeId"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("UniversityId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CollegeId");
-
-                    b.HasIndex("UniversityId");
-
-                    b.ToTable("Colleges");
-                });
-
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Course", b =>
-                {
-                    b.Property<int>("CourseId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"), 1L, 1);
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<int>("DepartmentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("CourseId");
-
-                    b.HasIndex("DepartmentId");
-
-                    b.ToTable("Courses");
-                });
-
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Department", b =>
+            modelBuilder.Entity("Department", b =>
                 {
                     b.Property<int>("DepartmentId")
                         .ValueGeneratedOnAdd()
@@ -161,7 +163,7 @@ namespace CourseRegistrationHelper.Data.Migrations
                     b.ToTable("Departments");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Instructor", b =>
+            modelBuilder.Entity("Instructor", b =>
                 {
                     b.Property<int>("InstructorId")
                         .ValueGeneratedOnAdd()
@@ -177,74 +179,6 @@ namespace CourseRegistrationHelper.Data.Migrations
                     b.HasKey("InstructorId");
 
                     b.ToTable("Instructors");
-                });
-
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Section", b =>
-                {
-                    b.Property<int>("SectionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SectionId"), 1L, 1);
-
-                    b.Property<int>("CRN")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Capacity")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<TimeSpan>("EndTime")
-                        .HasColumnType("time");
-
-                    b.Property<int>("InstructorId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Room")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("Schedule")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<TimeSpan>("StartTime")
-                        .HasColumnType("time");
-
-                    b.HasKey("SectionId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("InstructorId");
-
-                    b.ToTable("Sections");
-                });
-
-            modelBuilder.Entity("CourseRegistrationHelper.Models.University", b =>
-                {
-                    b.Property<int>("UniversityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UniversityId"), 1L, 1);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("UniversityId");
-
-                    b.ToTable("Universities");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -384,9 +318,77 @@ namespace CourseRegistrationHelper.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.College", b =>
+            modelBuilder.Entity("Section", b =>
                 {
-                    b.HasOne("CourseRegistrationHelper.Models.University", "University")
+                    b.Property<int>("SectionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SectionId"), 1L, 1);
+
+                    b.Property<int>("CRN")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("InstructorId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Room")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Schedule")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("SectionId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("InstructorId");
+
+                    b.ToTable("Sections");
+                });
+
+            modelBuilder.Entity("University", b =>
+                {
+                    b.Property<int>("UniversityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UniversityId"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("UniversityId");
+
+                    b.ToTable("Universities");
+                });
+
+            modelBuilder.Entity("College", b =>
+                {
+                    b.HasOne("University", "University")
                         .WithMany("Colleges")
                         .HasForeignKey("UniversityId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -395,9 +397,9 @@ namespace CourseRegistrationHelper.Data.Migrations
                     b.Navigation("University");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Course", b =>
+            modelBuilder.Entity("Course", b =>
                 {
-                    b.HasOne("CourseRegistrationHelper.Models.Department", "Department")
+                    b.HasOne("Department", "Department")
                         .WithMany("Courses")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -406,34 +408,15 @@ namespace CourseRegistrationHelper.Data.Migrations
                     b.Navigation("Department");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Department", b =>
+            modelBuilder.Entity("Department", b =>
                 {
-                    b.HasOne("CourseRegistrationHelper.Models.College", "College")
+                    b.HasOne("College", "College")
                         .WithMany("Departments")
                         .HasForeignKey("CollegeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("College");
-                });
-
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Section", b =>
-                {
-                    b.HasOne("CourseRegistrationHelper.Models.Course", "Course")
-                        .WithMany("Sections")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CourseRegistrationHelper.Models.Instructor", "Instructor")
-                        .WithMany("Sections")
-                        .HasForeignKey("InstructorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Instructor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -487,27 +470,46 @@ namespace CourseRegistrationHelper.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.College", b =>
+            modelBuilder.Entity("Section", b =>
+                {
+                    b.HasOne("Course", "Course")
+                        .WithMany("Sections")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Instructor", "Instructor")
+                        .WithMany("Sections")
+                        .HasForeignKey("InstructorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Instructor");
+                });
+
+            modelBuilder.Entity("College", b =>
                 {
                     b.Navigation("Departments");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Course", b =>
+            modelBuilder.Entity("Course", b =>
                 {
                     b.Navigation("Sections");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Department", b =>
+            modelBuilder.Entity("Department", b =>
                 {
                     b.Navigation("Courses");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.Instructor", b =>
+            modelBuilder.Entity("Instructor", b =>
                 {
                     b.Navigation("Sections");
                 });
 
-            modelBuilder.Entity("CourseRegistrationHelper.Models.University", b =>
+            modelBuilder.Entity("University", b =>
                 {
                     b.Navigation("Colleges");
                 });
