@@ -1,0 +1,158 @@
+﻿<!-- Courses/Search.cshtml -->
+@* Include dropdowns for filtering *@
+@* <select asp-items="Model.Universities" id="universities-dropdown"></select>
+<select asp-items="Model.Colleges" id="colleges-dropdown"></select>
+<select asp-items="Model.Departments" id="departments-dropdown"></select>
+ *@@* <select asp-items="Model.Courses" id="courses-dropdown"></select> *@
+
+@* List of courses *@
+@* <table>
+    @foreach (var course in Model.Courses)
+    {
+        <tr>
+            <td>@course.Name</td>
+            <td>@course.Symbol</td>
+            <td>@course.CreditHours</td>
+            <td>@course.CRN</td>
+            <td>@course.Days</td>
+            <td>@course.Time</td>
+            <td>@course.AvailableSeats</td>
+            <td>@course.Location</td>
+            <td>@course.Instructor</td>
+            <td>
+                @if (course.AvailableSeats > 0)
+                {
+                    <input type="checkbox" name="selectedCourses" value="@course.CRN" />
+                }
+                else
+                {
+                    <button class="btn-notify">Notify me</button>
+                }
+            </td>
+        </tr>
+    }
+</table>
+ *@
+
+
+@model CourseRegistrationHelper.Models.CourseSearchViewModel
+
+@{
+    ViewData["Title"] = "Course Search";
+}
+
+<h2>Course Search</h2>
+
+<form asp-action="Search" method="post">
+    <div>
+        <label>Select university:</label>
+        <select id="universities-dropdown" asp-for="SelectedUniversityId" asp-items="@(new SelectList(Model.Universities, "UniversityId", "Name"))">
+            <option value="">-- Select university --</option>
+        </select>
+    </div>
+    <div>
+        <label>Select college:</label>
+        <select id="colleges-dropdown" asp-for="SelectedCollegeId">
+            <option value="">-- Select college --</option>
+        </select>
+    </div>
+    <div>
+        <label>Select department:</label>
+        <select id="departments-dropdown" asp-for="SelectedDepartmentId">
+            <option value="">-- Select department --</option>
+        </select>
+    </div>
+    <div>
+        <label>Select course:</label>
+        <select id="courses-dropdown" asp-for="SelectedCourseId">
+            <option value="">-- Select course --</option>
+        </select>
+    </div>
+
+    <button type="submit">Filter</button>
+</form>
+
+<table>
+    <!-- Table headers -->
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Course Symbol</th>
+            <!-- Add other headers -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var course in Model.Courses)
+        {
+            <tr>
+                <td>@course.Title</td>
+                <td>@course.Code</td>
+                <!-- Add other course details -->
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            
+            $('#universities-dropdown').change(function () {
+                var universityId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetColleges", "Courses")',
+                    type: 'GET',
+                    data: { universityId: universityId },
+                    success: function (colleges) {
+                        var collegesDropdown = $('#colleges-dropdown');
+                        collegesDropdown.empty();
+                        collegesDropdown.append('<option value="">-- Select college --</option>');
+                        $.each(colleges, function (index, college) {
+                            collegesDropdown.append('<option value="' + college.collegeId + '">' + college.name + '</option>');
+                        });
+                    }
+                });
+            });
+            
+            $('#colleges-dropdown').change(function () {
+                var collegeId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetDepartments", "Courses")',
+                    type: 'GET',
+                    data: { collegeId: collegeId },
+                    success: function (departments) {
+                        var departmentsDropdown = $('#departments-dropdown');
+                        departmentsDropdown.empty();
+                        departmentsDropdown.append('<option value="">-- Select department --</option>');
+                        $.each(departments, function (index, department) {
+                            departmentsDropdown.append('<option value="' + department.departmentId + '">' + department.name + '</option>');
+                        });
+                    }
+                });
+            });
+
+            $('#departments-dropdown').change(function () {
+                var departmentId = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("GetCourses", "Courses")',
+                    type: 'GET',
+                    data: { departmentId: departmentId },
+                    success: function (courses) {
+                        var coursesDropdown = $('#courses-dropdown');
+                        coursesDropdown.empty();
+                        coursesDropdown.append('<option value="">-- Select course --</option>');
+                        $.each(courses, function (index, course) {
+                            coursesDropdown.append('<option value="' + course.courseId + '">' + course.code + ' - ' + course.title + '</option>');
+                        });
+                    }
+                });
+            });
+            // Add similar AJAX calls for other dropdowns
+        });
+    </script>
+}

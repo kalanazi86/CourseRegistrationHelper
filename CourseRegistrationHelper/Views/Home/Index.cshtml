@@ -19,7 +19,7 @@
         <section>
             <form id="account" method="post">
                 <div class="form-floating my-1">
-                    <input class="form-control" autocomplete="username" aria-required="true" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Input_Email" name="Input.Email" value="" />
+                    <input  class="form-control" autocomplete="username" aria-required="true" type="email" data-val="true" data-val-email="The Email field is not a valid e-mail address." data-val-required="The Email field is required." id="Input_Email" name="Input.Email" value="" />
                     <label class="form-label" for="Input_Email">Email</label>
                     <span class="text-danger field-validation-valid" data-valmsg-for="Input.Email" data-valmsg-replace="true"></span>
                 </div>
@@ -50,7 +50,7 @@
                 <input name="__RequestVerificationToken" type="hidden" value="CfDJ8N4IHhWpUYBEhhIHTMqLrKfD86UsNALyBDuAVFu1gZA0YZJsmDLWMiZ3CJj3zy16G-xaZ7ShAjHxb7I9Al4XvQ896maauDXuwOWpTzh6g5maiVZJ8Mk2HtRn6p0POXfxWGqeB555kyhN2AfCccxklp8" /><input name="Input.RememberMe" type="hidden" value="false" />
             </form>
         </section>
-        <button type="submit" class="w-100 btn btn-primary my-1">Search Courses</button>
+        <a asp-controller="Courses" asp-action="Search" class="w-100 btn btn-primary my-1">Search Courses</a>
     </div>
     
 </div>

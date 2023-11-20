@@ -1,0 +1,75 @@
+﻿using CourseRegistrationHelper.Models;
+using CourseRegistrationHelper.Data;
+using Microsoft.AspNetCore.Mvc;
+using System.Linq;
+
+namespace CourseRegistrationHelper.Controllers
+{
+    public class CoursesController : Controller
+    {
+        private readonly ApplicationDbContext _context;
+
+        public CoursesController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
+        // Displays the initial search form
+        public IActionResult Search()
+        {
+            var model = new CourseSearchViewModel
+            {
+                Universities = _context.Universities.ToList(),
+                // Initialize other properties if necessary
+            };
+
+            return View(model);
+        }
+
+        // Handle the search logic when user applies filters
+        [HttpPost]
+        public IActionResult Search(CourseSearchViewModel searchModel)
+        {
+            // Apply search filters and update the model accordingly
+            var filteredCourses = _context.Courses
+                // Filter by university, college, department, etc., based on searchModel
+                .ToList();
+
+            searchModel.Courses = filteredCourses;
+            return View(searchModel);
+        }
+    }
+}
+
+using CourseRegistrationHelper.Models;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+
+namespace CourseRegistrationHelper.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}

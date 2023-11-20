@@ -1,0 +1,15 @@
+﻿@* List of suggested schedules *@
+@* <table>
+    @foreach (var schedule in Model.SuggestedSchedules)
+    {
+        <tr>
+            <td>@Html.Raw(schedule.DisplaySchedule)</td>
+            <td>
+                <form asp-controller="Courses" asp-action="Register" method="post">
+                    <input asp-for="schedule.Selected" type="hidden" />
+                    <button type="submit" class="btn-register" disabled="!User.Identity.IsAuthenticated">Register</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table> *@

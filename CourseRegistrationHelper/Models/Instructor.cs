@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace CourseRegistrationHelper.Models
@@ -11,6 +12,9 @@ namespace CourseRegistrationHelper.Models
 
         [Required, StringLength(100)]
         public string Name { get; set; }
+
+        [ForeignKey("Department")]
+        public int DepartmentId { get; set; }
 
         // Navigation property
         public virtual ICollection<Section> Sections { get; set; }
