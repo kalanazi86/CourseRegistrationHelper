@@ -15,6 +15,9 @@ namespace CourseRegistrationHelper.Models
 
         [ForeignKey("Department")]
         public int DepartmentId { get; set; }
+        public string OfficeHours { get; set; }
+
+        public string Email { get; set; }
 
         // Navigation property
         public virtual ICollection<Section> Sections { get; set; }

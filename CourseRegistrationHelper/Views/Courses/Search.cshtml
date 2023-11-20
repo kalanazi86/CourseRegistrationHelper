@@ -1,39 +1,4 @@
 ﻿<!-- Courses/Search.cshtml -->
-@* Include dropdowns for filtering *@
-@* <select asp-items="Model.Universities" id="universities-dropdown"></select>
-<select asp-items="Model.Colleges" id="colleges-dropdown"></select>
-<select asp-items="Model.Departments" id="departments-dropdown"></select>
- *@@* <select asp-items="Model.Courses" id="courses-dropdown"></select> *@
-
-@* List of courses *@
-@* <table>
-    @foreach (var course in Model.Courses)
-    {
-        <tr>
-            <td>@course.Name</td>
-            <td>@course.Symbol</td>
-            <td>@course.CreditHours</td>
-            <td>@course.CRN</td>
-            <td>@course.Days</td>
-            <td>@course.Time</td>
-            <td>@course.AvailableSeats</td>
-            <td>@course.Location</td>
-            <td>@course.Instructor</td>
-            <td>
-                @if (course.AvailableSeats > 0)
-                {
-                    <input type="checkbox" name="selectedCourses" value="@course.CRN" />
-                }
-                else
-                {
-                    <button class="btn-notify">Notify me</button>
-                }
-            </td>
-        </tr>
-    }
-</table>
- *@
-
 
 @model CourseRegistrationHelper.Models.CourseSearchViewModel
 
@@ -72,26 +37,7 @@
     <button type="submit">Filter</button>
 </form>
 
-<table>
-    <!-- Table headers -->
-    <thead>
-        <tr>
-            <th>Course Name</th>
-            <th>Course Symbol</th>
-            <!-- Add other headers -->
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in Model.Courses)
-        {
-            <tr>
-                <td>@course.Title</td>
-                <td>@course.Code</td>
-                <!-- Add other course details -->
-            </tr>
-        }
-    </tbody>
-</table>
+
 
 @section Scripts {
     @{

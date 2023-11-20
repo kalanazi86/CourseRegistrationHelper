@@ -10,6 +10,7 @@ namespace CourseRegistrationHelper.Models
 
         [Required, StringLength(100)]
         public string Name { get; set; }
+        public string URL { get; set; }
 
         // Navigation property
         public virtual ICollection<College> Colleges { get; set; }

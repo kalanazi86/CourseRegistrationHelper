@@ -15,6 +15,9 @@ namespace CourseRegistrationHelper.Models
 
         [Required]
         public int Capacity { get; set; }
+        
+        [Required]
+        public int EnrolledStudents { get; set; }
 
         [Required, StringLength(100)]
         public string Location { get; set; } // e.g., 'SEU Riyadh-males', 'SEU Jeddah-females', 'Online'

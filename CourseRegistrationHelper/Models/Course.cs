@@ -19,6 +19,7 @@ namespace CourseRegistrationHelper.Models
 
         [ForeignKey("Department")]
         public int DepartmentId { get; set; }
+        public int CreditHours { get; set; }
 
         // Navigation property
         public Department Department { get; set; }

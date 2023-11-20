@@ -20,9 +20,9 @@ namespace CourseRegistrationHelper.Controllers
             var model = new CourseSearchViewModel
             {
                 Universities = _context.Universities.ToList(),
-                Colleges = _context.Colleges.ToList(),
-                Departments = _context.Departments.ToList(),
-                Courses = _context.Courses.ToList()
+                //Colleges = _context.Colleges.ToList(),
+                //Departments = _context.Departments.ToList(),
+                //Courses = _context.Courses.ToList()
                 // Initialize other properties if necessary
             };
 

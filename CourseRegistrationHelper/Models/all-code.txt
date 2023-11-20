@@ -29,6 +29,7 @@ namespace CourseRegistrationHelper.Models
         public virtual ICollection<Department> Departments { get; set; }
     }
 }
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -50,12 +51,15 @@ namespace CourseRegistrationHelper.Models
 
         [ForeignKey("Department")]
         public int DepartmentId { get; set; }
+        public int CreditHours { get; set; }
 
         // Navigation property
         public Department Department { get; set; }
         public virtual ICollection<Section> Sections { get; set; }
     }
 }
+
+
 
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -76,6 +80,8 @@ namespace CourseRegistrationHelper.Models
         public int SelectedCourseId { get; set; }
     }
 }
+
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -108,8 +114,11 @@ namespace CourseRegistrationHelper.Models
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }
+
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace CourseRegistrationHelper.Models
@@ -122,10 +131,18 @@ namespace CourseRegistrationHelper.Models
         [Required, StringLength(100)]
         public string Name { get; set; }
 
+        [ForeignKey("Department")]
+        public int DepartmentId { get; set; }
+        public string OfficeHours { get; set; }
+
+        public string Email { get; set; }
+
         // Navigation property
         public virtual ICollection<Section> Sections { get; set; }
     }
 }
+
+
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -143,6 +160,9 @@ namespace CourseRegistrationHelper.Models
 
         [Required]
         public int Capacity { get; set; }
+        
+        [Required]
+        public int EnrolledStudents { get; set; }
 
         [Required, StringLength(100)]
         public string Location { get; set; } // e.g., 'SEU Riyadh-males', 'SEU Jeddah-females', 'Online'
@@ -172,6 +192,8 @@ namespace CourseRegistrationHelper.Models
         public Instructor Instructor { get; set; }
     }
 }
+
+
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -184,6 +206,7 @@ namespace CourseRegistrationHelper.Models
 
         [Required, StringLength(100)]
         public string Name { get; set; }
+        public string URL { get; set; }
 
         // Navigation property
         public virtual ICollection<College> Colleges { get; set; }
