@@ -27,7 +27,7 @@ namespace CourseRegistrationHelper.Models
 
         // Assume the class schedule is represented by a single string, e.g., "MoWeFr 10:00-11:15"
         [Required, StringLength(50)]
-        public string Schedule { get; set; }
+        public string Days { get; set; }
 
         // Start and end times are stored as TimeSpan, which EF Core maps to time in SQL Server
         [Required]

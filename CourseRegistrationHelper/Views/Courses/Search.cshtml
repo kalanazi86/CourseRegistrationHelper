@@ -1,4 +1,4 @@
-﻿<!-- Courses/Search.cshtml -->
+<!-- Courses/Search.cshtml -->
 
 @model CourseRegistrationHelper.Models.CourseSearchViewModel
 
@@ -11,9 +11,11 @@
 <form asp-action="Search" method="post">
     <div>
         <label>Select university:</label>
-        <select id="universities-dropdown" asp-for="SelectedUniversityId" asp-items="@(new SelectList(Model.Universities, "UniversityId", "Name"))">
+        <select id="universities-dropdown" asp-for="SelectedUniversityId"
+                asp-items="@(Model.Universities != null ? new SelectList(Model.Universities, "Value", "Text") : new SelectList(Enumerable.Empty<SelectListItem>()))">
             <option value="">-- Select university --</option>
         </select>
+
     </div>
     <div>
         <label>Select college:</label>
@@ -37,68 +39,139 @@
     <button type="submit">Filter</button>
 </form>
 
+@if (Model.Sections != null && Model.Sections.Any())
+{
+    <table class="table">
+    <thead>
+        <tr>
+            <th>Course Name</th>
+            <th>Course Symbol</th>
+            <th>Credit Hours</th>
+            <th>CRN</th>
+            <th>Days</th>
+            <th>Time</th>
+            <th>Available Seats</th>
+            <th>Location</th>
+            <th>Instructor</th>
+            <th>Select</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var sectionS in Model.Sections)
+        {
+            <tr>
+                <td>@sectionS.CourseName</td>
+                <td>@sectionS.CourseSymbol</td>
+                <td>@sectionS.CreditHours</td>
+                <td>@sectionS.CRN</td>
+                <td>@sectionS.Days</td>
+                <td>@sectionS.Time</td>
+                <td>@sectionS.AvailableSeats out of @sectionS.Capacity</td> <!-- Assuming you have a property for total seats -->
+                <td>@sectionS.Location</td>
+                <td>@sectionS.Instructor</td>
+                <td>
+                    <input type="checkbox" name="selectedSections" value="@sectionS.CRN" @(sectionS.AvailableSeats > 0 ? "" : "disabled") />
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 
+}
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script>
         $(document).ready(function () {
-            
+
+            // Function to load colleges
+            function loadColleges(universityId, selectedCollegeId) {
+                var collegesDropdown = $('#colleges-dropdown');
+                collegesDropdown.empty();
+                collegesDropdown.append('<option value="">-- Select college --</option>');
+                if (universityId) {
+                    $.ajax({
+                        url: '@Url.Action("GetColleges", "Courses")',
+                        type: 'GET',
+                        data: { universityId: universityId },
+                        success: function (colleges) {
+                            $.each(colleges, function (index, college) {
+                                collegesDropdown.append(new Option(college.name, college.collegeId, false, college.collegeId == selectedCollegeId));
+                            });
+                            if (selectedCollegeId) {
+                                $('#colleges-dropdown').change();
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Function to load departments
+            function loadDepartments(collegeId, selectedDepartmentId) {
+                var departmentsDropdown = $('#departments-dropdown');
+                departmentsDropdown.empty();
+                departmentsDropdown.append('<option value="">-- Select department --</option>');
+                if (collegeId) {
+                    $.ajax({
+                        url: '@Url.Action("GetDepartments", "Courses")',
+                        type: 'GET',
+                        data: { collegeId: collegeId },
+                        success: function (departments) {
+                            $.each(departments, function (index, department) {
+                                departmentsDropdown.append(new Option(department.name, department.departmentId, false, department.departmentId == selectedDepartmentId));
+                            });
+                            if (selectedDepartmentId) {
+                                $('#departments-dropdown').change();
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Function to load courses
+            function loadCourses(departmentId, selectedCourseId) {
+                var coursesDropdown = $('#courses-dropdown');
+                coursesDropdown.empty();
+                coursesDropdown.append('<option value="">-- Select course --</option>');
+                if (departmentId) {
+                    $.ajax({
+                        url: '@Url.Action("GetCourses", "Courses")',
+                        type: 'GET',
+                        data: { departmentId: departmentId },
+                        success: function (courses) {
+                            $.each(courses, function (index, course) {
+                                coursesDropdown.append(new Option(course.title, course.courseId, false, course.courseId == selectedCourseId));
+                            });
+                        }
+                    });
+                }
+            }
+
+            // Trigger the load when university dropdown changes
             $('#universities-dropdown').change(function () {
-                var universityId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("GetColleges", "Courses")',
-                    type: 'GET',
-                    data: { universityId: universityId },
-                    success: function (colleges) {
-                        var collegesDropdown = $('#colleges-dropdown');
-                        collegesDropdown.empty();
-                        collegesDropdown.append('<option value="">-- Select college --</option>');
-                        $.each(colleges, function (index, college) {
-                            collegesDropdown.append('<option value="' + college.collegeId + '">' + college.name + '</option>');
-                        });
-                    }
-                });
-            });
-            
-            $('#colleges-dropdown').change(function () {
-                var collegeId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("GetDepartments", "Courses")',
-                    type: 'GET',
-                    data: { collegeId: collegeId },
-                    success: function (departments) {
-                        var departmentsDropdown = $('#departments-dropdown');
-                        departmentsDropdown.empty();
-                        departmentsDropdown.append('<option value="">-- Select department --</option>');
-                        $.each(departments, function (index, department) {
-                            departmentsDropdown.append('<option value="' + department.departmentId + '">' + department.name + '</option>');
-                        });
-                    }
-                });
+                loadColleges($(this).val(), null);
             });
 
-            $('#departments-dropdown').change(function () {
-                var departmentId = $(this).val();
-                $.ajax({
-                    url: '@Url.Action("GetCourses", "Courses")',
-                    type: 'GET',
-                    data: { departmentId: departmentId },
-                    success: function (courses) {
-                        var coursesDropdown = $('#courses-dropdown');
-                        coursesDropdown.empty();
-                        coursesDropdown.append('<option value="">-- Select course --</option>');
-                        $.each(courses, function (index, course) {
-                            coursesDropdown.append('<option value="' + course.courseId + '">' + course.code + ' - ' + course.title + '</option>');
-                        });
-                    }
-                });
+            // Trigger the load when college dropdown changes
+            $('#colleges-dropdown').change(function () {
+                loadDepartments($(this).val(), null);
             });
-            // Add similar AJAX calls for other dropdowns
+
+            // Trigger the load when department dropdown changes
+            $('#departments-dropdown').change(function () {
+                loadCourses($(this).val(), null);
+            });
+
+            // Manually trigger the change events to load the dropdowns after a postback
+            if ('@Model.SelectedUniversityId' !== '') {
+                loadColleges('@Model.SelectedUniversityId', '@Model.SelectedCollegeId');
+            }
+            if ('@Model.SelectedCollegeId' !== '') {
+                loadDepartments('@Model.SelectedCollegeId', '@Model.SelectedDepartmentId');
+            }
+            if ('@Model.SelectedDepartmentId' !== '') {
+                loadCourses('@Model.SelectedDepartmentId', '@Model.SelectedCourseId');
+            }
         });
     </script>
 }

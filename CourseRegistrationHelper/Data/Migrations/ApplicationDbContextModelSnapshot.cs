@@ -107,7 +107,7 @@ namespace CourseRegistrationHelper.Data.Migrations
 
                     b.HasIndex("UniversityId");
 
-                    b.ToTable("Colleges");
+                    b.ToTable("Colleges", (string)null);
                 });
 
             modelBuilder.Entity("CourseRegistrationHelper.Models.Course", b =>
@@ -138,7 +138,7 @@ namespace CourseRegistrationHelper.Data.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("CourseRegistrationHelper.Models.Department", b =>
@@ -161,7 +161,7 @@ namespace CourseRegistrationHelper.Data.Migrations
 
                     b.HasIndex("CollegeId");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("CourseRegistrationHelper.Models.Instructor", b =>
@@ -190,7 +190,7 @@ namespace CourseRegistrationHelper.Data.Migrations
 
                     b.HasKey("InstructorId");
 
-                    b.ToTable("Instructors");
+                    b.ToTable("Instructors", (string)null);
                 });
 
             modelBuilder.Entity("CourseRegistrationHelper.Models.Section", b =>
@@ -243,7 +243,7 @@ namespace CourseRegistrationHelper.Data.Migrations
 
                     b.HasIndex("InstructorId");
 
-                    b.ToTable("Sections");
+                    b.ToTable("Sections", (string)null);
                 });
 
             modelBuilder.Entity("CourseRegistrationHelper.Models.University", b =>
@@ -265,7 +265,7 @@ namespace CourseRegistrationHelper.Data.Migrations
 
                     b.HasKey("UniversityId");
 
-                    b.ToTable("Universities");
+                    b.ToTable("Universities", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
