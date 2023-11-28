@@ -167,21 +167,88 @@ namespace CourseRegistrationHelper.Controllers
         [HttpPost]
         public IActionResult AddToDraft(CourseSearchViewModel model, string action)
         {
+            // If adding sections to the draft...
             if (action == "AddToDraft")
             {
+                // Get selected sections and merge with existing draft
                 var selectedSections = model.Sections.Where(s => s.IsSelected).ToList();
-                SaveDraftSectionsToSession(selectedSections);
-                // You can redirect back to the Search page or to a confirmation page
-                return RedirectToAction("Search");
+                var draftSections = GetDraftSectionsFromSession();
+                var updatedDraft = draftSections.Union(selectedSections, new SectionViewModelComparer()).ToList();
+                SaveDraftSectionsToSession(updatedDraft);
+
+                // Rebuild the model to reflect current state and return to the Search view
+                var updatedModel = PrepareSearchViewModel(model);
+                return View("Search", updatedModel);
             }
             else if (action == "GenerateSchedule")
             {
                 // Proceed to generate non-overlapping schedules
-                return RedirectToAction("GenerateSchedule");
+                return RedirectToAction("SuggestedSchedules");
             }
 
+            // Default return (could also handle other actions)
             return View();
         }
+
+        private CourseSearchViewModel PrepareSearchViewModel(CourseSearchViewModel originalModel)
+        {
+            var model = new CourseSearchViewModel
+            {
+                Universities = _context.Universities
+                                       .Select(u => new SelectListItem
+                                       {
+                                           Value = u.UniversityId.ToString(),
+                                           Text = u.Name,
+                                           Selected = u.UniversityId == originalModel.SelectedUniversityId
+                                       })
+                                       .ToList(),
+                // Repeat for other dropdowns...
+                Colleges = originalModel.SelectedUniversityId.HasValue ?
+                   _context.Colleges
+                           .Where(c => c.UniversityId == originalModel.SelectedUniversityId.Value)
+                           .Select(c => new SelectListItem
+                           {
+                               Value = c.CollegeId.ToString(),
+                               Text = c.Name,
+                               Selected = c.CollegeId == originalModel.SelectedCollegeId
+                           })
+                           .ToList() : new List<SelectListItem>(),
+                Departments = originalModel.SelectedCollegeId.HasValue ?
+                      _context.Departments
+                              .Where(d => d.CollegeId == originalModel.SelectedCollegeId.Value)
+                              .Select(d => new SelectListItem
+                              {
+                                  Value = d.DepartmentId.ToString(),
+                                  Text = d.Name,
+                                  Selected = d.DepartmentId == originalModel.SelectedDepartmentId
+                              })
+                              .ToList() : new List<SelectListItem>(),
+                Courses = originalModel.SelectedDepartmentId.HasValue ?
+                  _context.Courses
+                          .Where(c => c.DepartmentId == originalModel.SelectedDepartmentId.Value)
+                          .Select(c => new SelectListItem
+                          {
+                              Value = c.CourseId.ToString(),
+                              Text = c.Title,
+                              Selected = c.CourseId == originalModel.SelectedCourseId
+                          })
+                          .ToList() : new List<SelectListItem>(),
+
+                Sections = GetFilteredSections(originalModel.SelectedUniversityId, originalModel.SelectedCollegeId, originalModel.SelectedDepartmentId, originalModel.SelectedCourseId),
+
+                // Ensure the selected values are carried over to maintain state
+                SelectedUniversityId = originalModel.SelectedUniversityId,
+                SelectedCollegeId = originalModel.SelectedCollegeId,
+                SelectedDepartmentId = originalModel.SelectedDepartmentId,
+                SelectedCourseId = originalModel.SelectedCourseId
+            };
+
+            // Add the previously selected sections to the model
+            model.Sections.AddRange(GetDraftSectionsFromSession());
+
+            return model;
+        }
+
         private void SaveDraftSectionsToSession(List<SectionViewModel> draftSections)
         {
             // Combine existing draft sections with new selections, avoiding duplicates
