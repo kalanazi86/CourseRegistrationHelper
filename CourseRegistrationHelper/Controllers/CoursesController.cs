@@ -29,6 +29,12 @@ namespace CourseRegistrationHelper.Controllers
             return View(model);
         }
 
+        public IActionResult SuggestedSchedules()
+        {
+            var draftSections = GetDraftSectionsFromSession();
+            var nonOverlappingSchedules = GenerateNonOverlappingSchedules(draftSections);
+            return View(nonOverlappingSchedules);
+        }
 
         // Handle the search logic when user applies filters
         [HttpPost]
@@ -86,6 +92,7 @@ namespace CourseRegistrationHelper.Controllers
                 CourseName = s.Course.Title,
                 CourseSymbol = s.Course.Code,
                 CreditHours = s.Course.CreditHours,
+                SectionId = s.SectionId,
                 CRN = s.CRN,
                 Capacity = s.Capacity,
                 Location = s.Location,
@@ -98,8 +105,147 @@ namespace CourseRegistrationHelper.Controllers
                 // ... other mappings
             }).ToList();
         }
-        
+        public static bool SectionsOverlap(SectionViewModel section1, SectionViewModel section2)
+        {
+            var days1 = section1.Days.Split(',').Select(int.Parse).ToList();
+            var days2 = section2.Days.Split(',').Select(int.Parse).ToList();
+            bool daysOverlap = days1.Intersect(days2).Any();
+            bool timesOverlap = section1.StartTime < section2.EndTime && section2.StartTime < section1.EndTime;
 
+            return daysOverlap && timesOverlap;
+        }
+        public static List<List<T>> GetAllCombinations<T>(List<T> list)
+        {
+            var combinations = new List<List<T>>();
+            var combination = new List<T>();
+
+            void GenerateCombinations(int startIndex)
+            {
+                for (int i = startIndex; i < list.Count; i++)
+                {
+                    combination.Add(list[i]);
+                    combinations.Add(new List<T>(combination));
+                    GenerateCombinations(i + 1);
+                    combination.RemoveAt(combination.Count - 1);
+                }
+            }
+
+            GenerateCombinations(0);
+
+            return combinations;
+        }
+        public List<List<SectionViewModel>> GenerateNonOverlappingSchedules(List<SectionViewModel> draftSections)
+        {
+            var allCombinations = GetAllCombinations(draftSections);
+            var nonOverlappingSchedules = new List<List<SectionViewModel>>();
+
+            foreach (var combination in allCombinations)
+            {
+                bool hasOverlap = false;
+
+                for (int i = 0; i < combination.Count; i++)
+                {
+                    for (int j = i + 1; j < combination.Count; j++)
+                    {
+                        if (SectionsOverlap(combination[i], combination[j]))
+                        {
+                            hasOverlap = true;
+                            break;
+                        }
+                    }
+                    if (hasOverlap) break;
+                }
+
+                if (!hasOverlap)
+                {
+                    nonOverlappingSchedules.Add(combination);
+                }
+            }
+
+            return nonOverlappingSchedules;
+        }
+        [HttpPost]
+        public IActionResult AddToDraft(CourseSearchViewModel model, string action)
+        {
+            if (action == "AddToDraft")
+            {
+                var selectedSections = model.Sections.Where(s => s.IsSelected).ToList();
+                SaveDraftSectionsToSession(selectedSections);
+                // You can redirect back to the Search page or to a confirmation page
+                return RedirectToAction("Search");
+            }
+            else if (action == "GenerateSchedule")
+            {
+                // Proceed to generate non-overlapping schedules
+                return RedirectToAction("GenerateSchedule");
+            }
+
+            return View();
+        }
+        private void SaveDraftSectionsToSession(List<SectionViewModel> draftSections)
+        {
+            // Combine existing draft sections with new selections, avoiding duplicates
+            var currentDraft = GetDraftSectionsFromSession() ?? new List<SectionViewModel>();
+            var updatedDraft = currentDraft.Union(draftSections, new SectionViewModelComparer()).ToList();
+
+            var draftSectionsBytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(updatedDraft);
+            HttpContext.Session.Set("DraftSections", draftSectionsBytes);
+        }
+
+        // Implement an equality comparer for SectionViewModel if needed
+        public class SectionViewModelComparer : IEqualityComparer<SectionViewModel>
+        {
+            public bool Equals(SectionViewModel x, SectionViewModel y)
+            {
+                return x.SectionId == y.SectionId;
+            }
+
+            public int GetHashCode(SectionViewModel obj)
+            {
+                return obj.SectionId.GetHashCode();
+            }
+        }
+
+        private List<SectionViewModel> GetDraftSectionsFromSession()
+        {
+            // Check if the session contains any draft sections
+            if (HttpContext.Session.TryGetValue("DraftSections", out byte[] draftSectionsBytes))
+            {
+                // Deserialize the session data back into a List<SectionViewModel>
+                var draftSections = System.Text.Json.JsonSerializer.Deserialize<List<SectionViewModel>>(draftSectionsBytes);
+                return draftSections ?? new List<SectionViewModel>(); // Return the deserialized list or a new list if null
+            }
+            else
+            {
+                // If the session doesn't have draft sections, return an empty list
+                return new List<SectionViewModel>();
+            }
+        }
+
+        //public IActionResult GenerateSchedule()
+        //{
+        //    // Retrieve the user's draft sections from the session or database
+        //    List<SectionViewModel> draftSections = GetDraftSectionsFromSession();
+
+        //    // Proceed to generate non-overlapping schedules
+        //    List<List<SectionViewModel>> nonOverlappingSchedules = GenerateNonOverlappingSchedules(draftSections);
+
+        //    // Pass the non-overlapping schedules to the view
+        //    return View("SuggestedSchedules", nonOverlappingSchedules);
+        //}
+        public IActionResult GenerateSchedule()
+        {
+            var draftSections = GetDraftSectionsFromSession();
+            if (draftSections == null || !draftSections.Any())
+            {
+                // Handle the case where there are no draft sections
+                // Redirect to an error page or show a message
+                return RedirectToAction("Search");
+            }
+
+            var nonOverlappingSchedules = GenerateNonOverlappingSchedules(draftSections);
+            return View("SuggestedSchedules", nonOverlappingSchedules);
+        }
 
         // New action to get colleges based on university selection
         [HttpGet]

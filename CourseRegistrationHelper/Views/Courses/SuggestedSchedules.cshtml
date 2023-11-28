@@ -1,15 +1,17 @@
-﻿@* List of suggested schedules *@
-@* <table>
-    @foreach (var schedule in Model.SuggestedSchedules)
-    {
-        <tr>
-            <td>@Html.Raw(schedule.DisplaySchedule)</td>
-            <td>
-                <form asp-controller="Courses" asp-action="Register" method="post">
-                    <input asp-for="schedule.Selected" type="hidden" />
-                    <button type="submit" class="btn-register" disabled="!User.Identity.IsAuthenticated">Register</button>
-                </form>
-            </td>
-        </tr>
-    }
-</table> *@
+﻿@model List<List<SectionViewModel>>
+
+@foreach (var schedule in Model)
+{
+    <h2>Potential Schedule</h2>
+    <table>
+        @foreach (var sectionS in schedule)
+        {
+            <tr>
+                <td>@sectionS.CourseName</td>
+                <td>@sectionS.Days</td>
+                <td>@sectionS.StartTime - @sectionS.EndTime</td>
+                <!-- Other details -->
+            </tr>
+        }
+    </table>
+}
