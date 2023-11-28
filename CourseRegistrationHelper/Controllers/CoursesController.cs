@@ -60,6 +60,18 @@ namespace CourseRegistrationHelper.Controllers
                 .Select(c => new SelectListItem { Value = c.CourseId.ToString(), Text = c.Title, Selected = c.CourseId == searchModel.SelectedCourseId })
                 .ToList();
 
+            // Check if the current user is an admin
+            if (User.IsInRole("Admin"))
+            {
+                searchModel.IsAdminView = true;
+                searchModel.AdminActions = searchModel.Sections.Select(s => new AdminActionViewModel
+                {
+                    SectionId = s.SectionId,
+                    EditActionLink = Url.Action("EditSection", "Admin", new { id = s.SectionId }),
+                    DeleteActionLink = Url.Action("DeleteSection", "Admin", new { id = s.SectionId })
+                }).ToList();
+            }
+
             return View(searchModel);
         }
 

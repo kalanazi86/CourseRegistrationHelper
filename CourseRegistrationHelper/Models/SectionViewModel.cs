@@ -16,7 +16,12 @@
         public TimeSpan EndTime { get; set; }
         public int Capacity { get; set; }
         public int EnrolledStudents { get; set; }
-        public int AvailableSeats => Capacity - EnrolledStudents;
+        private int _availableSeats;
+        public int AvailableSeats
+        {
+            get { return Capacity - EnrolledStudents; }
+            set { _availableSeats = value; } // This allows setting AvailableSeats directly if that's what you need
+        }
         public string Location { get; set; }
         public string Instructor { get; set; }
 

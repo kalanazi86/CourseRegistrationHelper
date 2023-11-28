@@ -32,6 +32,19 @@ namespace CourseRegistrationHelper.Models
         public int? SelectedCollegeId { get; set; }
         public int? SelectedDepartmentId { get; set; }
         public int? SelectedCourseId { get; set; }
+
+        // Flag to determine if the view is for an admin
+        public bool IsAdminView { get; set; }
+
+        // Actions for the admin
+        public List<AdminActionViewModel> AdminActions { get; set; }
+    }
+
+    public class AdminActionViewModel
+    {
+        public int SectionId { get; set; }
+        public string EditActionLink { get; set; }
+        public string DeleteActionLink { get; set; }
     }
 
 }
