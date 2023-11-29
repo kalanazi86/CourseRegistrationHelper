@@ -1,4 +1,4 @@
-﻿@model List<List<SectionViewModel>>
+﻿@* @model List<List<SectionViewModel>>
 
 @foreach (var schedule in Model)
 {
@@ -14,4 +14,71 @@
             </tr>
         }
     </table>
+}
+ *@
+
+ @model List<ScheduleCombinationViewModel>
+
+@foreach (var schedule in Model)
+{
+    <h2>Potential Schedule</h2>
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th>Time Slot</th>
+                <th>Sunday</th>
+                <th>Monday</th>
+                <th>Tuesday</th>
+                <th>Wednesday</th>
+                <th>Thursday</th>
+                <!-- ... other days as needed -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var timeSlot in GetAllTimeSlots(schedule.Sections))
+            {
+                <tr>
+                    <td>@timeSlot</td>
+                    @foreach (var day in Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>())
+                    {
+                        <td>
+                            @RenderSection(schedule.Sections, day, timeSlot)
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button onclick="register(@schedule)">Register</button>
+    <button onclick="share(@schedule)">Share</button>
+}
+
+@functions {
+    public string RenderSection(IEnumerable<SectionViewModel> sections, DayOfWeek day, TimeSpan timeSlot)
+    {
+        var section = sections.FirstOrDefault(s => s.ParsedDays.Contains(day) && s.StartTime == timeSlot);
+        return section != null ? $"{section.CourseSymbol} - {section.Instructor}" : string.Empty;
+    }
+
+    public IEnumerable<TimeSpan> GetAllTimeSlots(IEnumerable<SectionViewModel> sections)
+    {
+        return sections.SelectMany(s => new[] { s.StartTime, s.EndTime }).Distinct().OrderBy(t => t);
+    }
+}
+
+
+@section Scripts {
+    <script type="text/javascript">
+        function register(schedule) {
+            // You can use AJAX to post the schedule ID to the server or navigate to a registration page
+            // Example:
+            // $.post('/register', { scheduleId: schedule.Id }, function(response) {
+            //     alert('Registration successful!');
+            // });
+        }
+
+        function share(schedule) {
+            // Implement sharing logic, possibly generating a shareable link or integrating with an email API
+        }
+    </script>
 }

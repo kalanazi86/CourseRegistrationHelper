@@ -16,6 +16,7 @@ namespace CourseRegistrationHelper.Controllers
             _context = context;
         }
 
+
         // Displays the initial search form
         public IActionResult Search()
         {
@@ -28,13 +29,77 @@ namespace CourseRegistrationHelper.Controllers
 
             return View(model);
         }
+        private bool DoSectionsOverlap(SectionViewModel first, SectionViewModel second)
+        {
+            var daysFirst = ConvertDaysToList(first.Days);
+            var daysSecond = ConvertDaysToList(second.Days);
 
-        public IActionResult SuggestedSchedules()
+            return daysFirst.Intersect(daysSecond).Any() &&
+                   first.EndTime > second.StartTime &&
+                   second.EndTime > first.StartTime;
+        }
+
+        private List<int> ConvertDaysToList(string days)
+        {
+            return days.Select(d => int.Parse(d.ToString())).ToList();
+        }
+
+        private List<List<SectionViewModel>> BuildNonOverlappingSchedules(List<SectionViewModel> sections)
+        {
+            List<List<SectionViewModel>> allSchedules = new List<List<SectionViewModel>>();
+
+            void BuildSchedule(List<SectionViewModel> currentSchedule, List<SectionViewModel> availableSections)
+            {
+                foreach (var section in availableSections)
+                {
+                    if (!currentSchedule.Any(s => SchedulesOverlap(s, section)))
+                    {
+                        var newSchedule = new List<SectionViewModel>(currentSchedule) { section };
+                        allSchedules.Add(newSchedule);
+                        BuildSchedule(newSchedule, availableSections.Except(new List<SectionViewModel> { section }).ToList());
+                    }
+                }
+            }
+
+            BuildSchedule(new List<SectionViewModel>(), sections);
+            return allSchedules.Distinct().ToList();
+        }
+        private List<DayOfWeek> ParseDays(string daysNumeric)
+        {
+            var daysOfWeek = new Dictionary<char, DayOfWeek>
+    {
+        {'1', DayOfWeek.Sunday},
+        {'2', DayOfWeek.Monday},
+        {'3', DayOfWeek.Tuesday},
+        {'4', DayOfWeek.Wednesday},
+        {'5', DayOfWeek.Thursday},
+        // Add more if your week includes Friday and Saturday
+    };
+
+            return daysNumeric.Select(n => daysOfWeek[n]).ToList();
+        }
+        private bool SchedulesOverlap(SectionViewModel section1, SectionViewModel section2)
+        {
+            var days1 = ParseDays(section1.Days);
+            var days2 = ParseDays(section2.Days);
+
+            return days1.Any(day => days2.Contains(day)) &&
+                   section1.StartTime < section2.EndTime &&
+                   section1.EndTime > section2.StartTime;
+        }
+
+        public async Task<IActionResult> SuggestedSchedules()
         {
             var draftSections = GetDraftSectionsFromSession();
-            var nonOverlappingSchedules = GenerateNonOverlappingSchedules(draftSections);
-            return View(nonOverlappingSchedules);
+            var nonOverlappingSchedules = BuildNonOverlappingSchedules(draftSections);
+            var scheduleCombinations = nonOverlappingSchedules.Select(schedule => new ScheduleCombinationViewModel
+            {
+                Sections = schedule
+            }).ToList();
+
+            return View(scheduleCombinations);
         }
+
 
         // Handle the search logic when user applies filters
         [HttpPost]
@@ -73,6 +138,23 @@ namespace CourseRegistrationHelper.Controllers
             }
 
             return View(searchModel);
+        }
+
+        [HttpPost]
+        public IActionResult GenerateSchedule(CourseSearchViewModel model)
+        {
+            var selectedSections = model.Sections.Where(s => s.IsSelected).ToList();
+
+            if (selectedSections == null || !selectedSections.Any())
+            {
+                // Handle the case where no sections are selected
+                return RedirectToAction("Search"); // Or display a message indicating no sections were selected
+            }
+
+            var nonOverlappingSchedules = GenerateNonOverlappingSchedules(selectedSections);
+
+            // If everything is okay, pass the schedules to the view
+            return View("SuggestedSchedules", nonOverlappingSchedules);
         }
 
         private List<SectionViewModel> GetFilteredSections(int? universityId, int? collegeId, int? departmentId, int? courseId)
@@ -183,7 +265,7 @@ namespace CourseRegistrationHelper.Controllers
             if (action == "AddToDraft")
             {
                 // Get selected sections and merge with existing draft
-                var selectedSections = model.Sections.Where(s => s.IsSelected).ToList();
+                var selectedSections = model.Sections.Where(s => s.IsSelected && !string.IsNullOrEmpty(s.Days)).ToList();
                 var draftSections = GetDraftSectionsFromSession();
                 var updatedDraft = draftSections.Union(selectedSections, new SectionViewModelComparer()).ToList();
                 SaveDraftSectionsToSession(updatedDraft);
@@ -197,7 +279,7 @@ namespace CourseRegistrationHelper.Controllers
                 // Proceed to generate non-overlapping schedules
                 return RedirectToAction("SuggestedSchedules");
             }
-
+            
             // Default return (could also handle other actions)
             return View();
         }
@@ -323,6 +405,14 @@ namespace CourseRegistrationHelper.Controllers
             }
 
             var nonOverlappingSchedules = GenerateNonOverlappingSchedules(draftSections);
+            if (nonOverlappingSchedules == null || !nonOverlappingSchedules.Any())
+            {
+                // Handle the case where no schedules could be generated
+                // Redirect to an error page or show a message
+                return RedirectToAction("Search");
+            }
+
+            // If everything is okay, pass the schedules to the view
             return View("SuggestedSchedules", nonOverlappingSchedules);
         }
 

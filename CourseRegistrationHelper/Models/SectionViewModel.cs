@@ -22,6 +22,32 @@
             get { return Capacity - EnrolledStudents; }
             set { _availableSeats = value; } // This allows setting AvailableSeats directly if that's what you need
         }
+
+        public List<DayOfWeek> ParsedDays
+        {
+            get { return ParseDays(this.Days); }
+        }
+
+        private List<DayOfWeek> ParseDays(string daysNumeric)
+        {
+            if (string.IsNullOrEmpty(daysNumeric))
+            {
+                return new List<DayOfWeek>(); // Return an empty list if daysNumeric is null or empty
+            }
+
+            var daysOfWeek = new Dictionary<char, DayOfWeek>
+    {
+        {'1', DayOfWeek.Sunday},
+        {'2', DayOfWeek.Monday},
+        {'3', DayOfWeek.Tuesday},
+        {'4', DayOfWeek.Wednesday},
+        {'5', DayOfWeek.Thursday},
+        // ... other mappings ...
+    };
+
+            return daysNumeric.Select(n => daysOfWeek[n]).ToList();
+        }
+
         public string Location { get; set; }
         public string Instructor { get; set; }
 
