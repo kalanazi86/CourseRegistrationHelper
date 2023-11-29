@@ -1,0 +1,286 @@
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace CourseRegistrationHelper.Models
+{
+    public class ApplicationUser : IdentityUser
+    {
+    }
+}
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+
+namespace CourseRegistrationHelper.Models
+{
+    public class College
+    {
+        [Key]
+        public int CollegeId { get; set; }
+
+        [Required, StringLength(100)]
+        public string Name { get; set; }
+
+        [ForeignKey("University")]
+        public int UniversityId { get; set; }
+
+        // Navigation property
+        public University University { get; set; }
+        public virtual ICollection<Department> Departments { get; set; }
+    }
+}﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using static System.Collections.Specialized.BitVector32;
+
+
+namespace CourseRegistrationHelper.Models
+{
+    public class Course
+    {
+        [Key]
+        public int CourseId { get; set; }
+
+        [Required, StringLength(10)]
+        public string Code { get; set; }
+
+        [Required, StringLength(100)]
+        public string Title { get; set; }
+
+        [ForeignKey("Department")]
+        public int DepartmentId { get; set; }
+        public int CreditHours { get; set; }
+
+        // Navigation property
+        public Department Department { get; set; }
+        public virtual ICollection<Section> Sections { get; set; }
+    }
+}
+
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace CourseRegistrationHelper.Models
+{
+    
+    public class CourseSearchViewModel
+    {
+        // Change these properties to use SelectListItems for the dropdowns
+        public List<SelectListItem> Universities { get; set; }
+        public List<SelectListItem> Colleges { get; set; }
+        public List<SelectListItem> Departments { get; set; }
+        public List<SelectListItem> Courses { get; set; }
+        public List<SectionViewModel> Sections { get; set; }
+
+        // Properties to hold selected values for filtering
+        public int? SelectedUniversityId { get; set; }
+        public int? SelectedCollegeId { get; set; }
+        public int? SelectedDepartmentId { get; set; }
+        public int? SelectedCourseId { get; set; }
+
+        // Flag to determine if the view is for an admin
+        public bool IsAdminView { get; set; }
+
+        // Actions for the admin
+        public List<AdminActionViewModel> AdminActions { get; set; }
+    }
+
+    public class AdminActionViewModel
+    {
+        public int SectionId { get; set; }
+        public string EditActionLink { get; set; }
+        public string DeleteActionLink { get; set; }
+    }
+
+}
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+
+namespace CourseRegistrationHelper.Models
+{
+    public class Department
+    {
+        [Key]
+        public int DepartmentId { get; set; }
+
+        [Required, StringLength(100)]
+        public string Name { get; set; }
+
+        [ForeignKey("College")]
+        public int CollegeId { get; set; }
+
+        // Navigation property
+        public College College { get; set; }
+        public virtual ICollection<Course> Courses { get; set; }
+    }
+}
+namespace CourseRegistrationHelper.Models
+{
+    public class ErrorViewModel
+    {
+        public string? RequestId { get; set; }
+
+        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    }
+}
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+
+namespace CourseRegistrationHelper.Models
+{
+    public class Instructor
+    {
+        [Key]
+        public int InstructorId { get; set; }
+
+        [Required, StringLength(100)]
+        public string Name { get; set; }
+
+        [ForeignKey("Department")]
+        public int DepartmentId { get; set; }
+        public string OfficeHours { get; set; }
+
+        public string Email { get; set; }
+
+        // Navigation property
+        public virtual ICollection<Section> Sections { get; set; }
+    }
+}
+﻿namespace CourseRegistrationHelper.Models
+{
+    public class ScheduleCombinationViewModel
+    {
+        public List<SectionViewModel> Sections { get; set; }
+        // Other properties as needed for Register and Share actions
+    }
+}
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+
+namespace CourseRegistrationHelper.Models
+{
+    public class Section
+    {
+        [Key]
+        public int SectionId { get; set; }
+
+        [Required]
+        public int CRN { get; set; }
+
+        [Required]
+        public int Capacity { get; set; }
+        
+        [Required]
+        public int EnrolledStudents { get; set; }
+
+        [Required, StringLength(100)]
+        public string Location { get; set; } // e.g., 'SEU Riyadh-males', 'SEU Jeddah-females', 'Online'
+
+        [StringLength(50)]
+        public string Room { get; set; } // e.g., 'Room 101', 'Lab A', etc.
+
+        // Assume the class schedule is represented by a single string, e.g., "MoWeFr 10:00-11:15"
+        [Required, StringLength(50)]
+        public string Days { get; set; }
+
+        // Start and end times are stored as TimeSpan, which EF Core maps to time in SQL Server
+        [Required]
+        public TimeSpan StartTime { get; set; }
+
+        [Required]
+        public TimeSpan EndTime { get; set; }
+
+        [ForeignKey("Course")]
+        public int CourseId { get; set; }
+
+        [ForeignKey("Instructor")]
+        public int InstructorId { get; set; }
+
+        // Navigation properties
+        public Course Course { get; set; }
+        public Instructor Instructor { get; set; }
+    }
+}
+﻿namespace CourseRegistrationHelper.Models
+{
+    public class SectionViewModel
+    {
+        // Add properties that match the section details you need to display
+        public int SectionId { get; set; }
+        public string CourseName { get; set; }
+        public string CourseSymbol { get; set; }
+        public int CreditHours { get; set; }
+        public int CRN { get; set; }
+
+        public string Room { get; set; }
+        public string Days { get; set; }
+        public string Time { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public int Capacity { get; set; }
+        public int EnrolledStudents { get; set; }
+        private int _availableSeats;
+        public int AvailableSeats
+        {
+            get { return Capacity - EnrolledStudents; }
+            set { _availableSeats = value; } // This allows setting AvailableSeats directly if that's what you need
+        }
+
+        public List<DayOfWeek> ParsedDays
+        {
+            get { return ParseDays(this.Days); }
+        }
+
+        private List<DayOfWeek> ParseDays(string daysNumeric)
+        {
+            if (string.IsNullOrEmpty(daysNumeric))
+            {
+                return new List<DayOfWeek>(); // Return an empty list if daysNumeric is null or empty
+            }
+
+            var daysOfWeek = new Dictionary<char, DayOfWeek>
+    {
+        {'1', DayOfWeek.Sunday},
+        {'2', DayOfWeek.Monday},
+        {'3', DayOfWeek.Tuesday},
+        {'4', DayOfWeek.Wednesday},
+        {'5', DayOfWeek.Thursday},
+        // ... other mappings ...
+    };
+
+            return daysNumeric.Select(n => daysOfWeek[n]).ToList();
+        }
+
+        public string Location { get; set; }
+        public string Instructor { get; set; }
+
+        public bool IsSelected { get; set; } // To be used with the checkbox in the view
+
+        // ... any other properties you need
+
+    }
+}
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
+namespace CourseRegistrationHelper.Models
+{
+    public class University
+    {
+        [Key]
+        public int UniversityId { get; set; }
+
+        [Required, StringLength(100)]
+        public string Name { get; set; }
+        public string URL { get; set; }
+
+        // Navigation property
+        public virtual ICollection<College> Colleges { get; set; }
+    }
+}

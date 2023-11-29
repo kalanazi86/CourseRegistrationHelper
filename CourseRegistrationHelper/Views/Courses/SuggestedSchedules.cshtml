@@ -1,21 +1,4 @@
-﻿@* @model List<List<SectionViewModel>>
-
-@foreach (var schedule in Model)
-{
-    <h2>Potential Schedule</h2>
-    <table>
-        @foreach (var sectionS in schedule)
-        {
-            <tr>
-                <td>@sectionS.CourseName</td>
-                <td>@sectionS.Days</td>
-                <td>@sectionS.StartTime - @sectionS.EndTime</td>
-                <!-- Other details -->
-            </tr>
-        }
-    </table>
-}
- *@
+﻿
 
  @model List<ScheduleCombinationViewModel>
 
