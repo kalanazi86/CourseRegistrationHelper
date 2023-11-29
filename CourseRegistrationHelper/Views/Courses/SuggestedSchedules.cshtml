@@ -1,67 +1,106 @@
-﻿
+﻿@model List<List<SectionViewModel>>
 
- @model List<ScheduleCombinationViewModel>
+@{
+    ViewData["Title"] = "Suggested Schedules";
+}
 
-@foreach (var schedule in Model)
+<h2>Suggested Schedules</h2>
+
+@* @for (int i = 1; i < Model.Count; i++)
 {
-    <h2>Potential Schedule</h2>
-    <table class="schedule-table">
+    <h3>Schedule @i</h3>
+    <table class="table">
         <thead>
             <tr>
-                <th>Time Slot</th>
+                <th>Course Name</th>
+                <th>Course Symbol</th>
+                <th>Days</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Instructor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sectionS in Model[i])
+            {
+                <tr>
+                    <td>@sectionS.CourseName</td>
+                    <td>@sectionS.CourseSymbol</td>
+                    <td>@sectionS.Days</td>
+                    <td>@sectionS.StartTime - @sectionS.EndTime</td>
+                    <td>@sectionS.Location</td>
+                    <td>@sectionS.Instructor</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <button onclick="registerSchedule(@i)" class="btn btn-primary">Register</button>
+    <button onclick="shareSchedule(@i)" class="btn btn-secondary">Share</button>
+} *@
+
+
+@* ============================================================================================================ *@
+@foreach (var schedule in Model.Select((value, index) => new { value, index }))
+{
+    <h3>Schedule @(schedule.index + 1)</h3>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Time</th>
                 <th>Sunday</th>
                 <th>Monday</th>
                 <th>Tuesday</th>
                 <th>Wednesday</th>
                 <th>Thursday</th>
-                <!-- ... other days as needed -->
+                <!-- Add headers for Friday and Saturday if needed -->
             </tr>
         </thead>
         <tbody>
-            @foreach (var timeSlot in GetAllTimeSlots(schedule.Sections))
+            <!-- Iterate through time slots, for each time slot check if there is a class in the schedule -->
+            @foreach (var timeSlot in GetTimeSlots(schedule.value))
             {
                 <tr>
                     <td>@timeSlot</td>
-                    @foreach (var day in Enum.GetValues(typeof(DayOfWeek)).Cast<DayOfWeek>())
+                    @foreach (var day in Enum.GetValues(typeof(DayOfWeek)))
                     {
                         <td>
-                            @RenderSection(schedule.Sections, day, timeSlot)
+                            @RenderSectionForDayAndTime(schedule.value, (DayOfWeek)day, timeSlot)
                         </td>
                     }
                 </tr>
             }
         </tbody>
     </table>
-    <button onclick="register(@schedule)">Register</button>
-    <button onclick="share(@schedule)">Share</button>
+    <button class="btn btn-primary">Register</button>
+    <button class="btn btn-secondary">Share</button>
 }
 
 @functions {
-    public string RenderSection(IEnumerable<SectionViewModel> sections, DayOfWeek day, TimeSpan timeSlot)
+    private string RenderSectionForDayAndTime(IEnumerable<SectionViewModel> sections, DayOfWeek day, TimeSpan timeSlot)
     {
-        var section = sections.FirstOrDefault(s => s.ParsedDays.Contains(day) && s.StartTime == timeSlot);
+        var section = sections.FirstOrDefault(s => s.DaysOfWeek.Contains(day) && s.StartTime == timeSlot);
         return section != null ? $"{section.CourseSymbol} - {section.Instructor}" : string.Empty;
     }
 
-    public IEnumerable<TimeSpan> GetAllTimeSlots(IEnumerable<SectionViewModel> sections)
+    private IEnumerable<TimeSpan> GetTimeSlots(IEnumerable<SectionViewModel> sections)
     {
+        // Assuming you have a method to get all distinct time slots from the sections
         return sections.SelectMany(s => new[] { s.StartTime, s.EndTime }).Distinct().OrderBy(t => t);
     }
 }
+@* ============================================================================================================ *@
 
 
 @section Scripts {
-    <script type="text/javascript">
-        function register(schedule) {
-            // You can use AJAX to post the schedule ID to the server or navigate to a registration page
-            // Example:
-            // $.post('/register', { scheduleId: schedule.Id }, function(response) {
-            //     alert('Registration successful!');
-            // });
+    <script>
+        function registerSchedule(scheduleIndex) {
+            // Implement logic to register the selected schedule
+            // For example, post to a controller action with the schedule index or ID
         }
 
-        function share(schedule) {
-            // Implement sharing logic, possibly generating a shareable link or integrating with an email API
+        function shareSchedule(scheduleIndex) {
+            // Implement logic to share the selected schedule
+            // This might involve opening a mail client, copying the schedule to the clipboard, etc.
         }
     </script>
 }

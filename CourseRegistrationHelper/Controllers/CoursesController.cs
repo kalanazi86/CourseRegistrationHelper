@@ -149,5 +149,72 @@ namespace CourseRegistrationHelper.Controllers
 
             return Json(courses);
         }
+        [HttpPost]
+        public IActionResult GenerateSchedules(CourseSearchViewModel model)
+        {
+            // Extract the selected SectionViewModels from the model
+            var selectedSections = model.Sections
+                                        .Where(s => s.IsSelected)
+                                        .ToList();
+
+            // Use the method to generate non-overlapping schedules
+            var nonOverlappingSchedules = GenerateNonOverlappingSchedules(selectedSections, new List<SectionViewModel>());
+
+            // Now you have a list of non-overlapping schedules
+            // You need to decide how you want to present these to the user.
+            // For example, you could return a view that lists these schedules, or you could select the 'best' schedule based on some criteria.
+
+            return View("SuggestedSchedules", nonOverlappingSchedules);
+        }
+
+        private bool SectionsOverlap(SectionViewModel first, SectionViewModel second)
+        {
+            // Check if days intersect
+            var daysIntersect = first.DaysOfWeek.Intersect(second.DaysOfWeek).Any();
+            if (!daysIntersect) return false;
+
+            // Check if times overlap
+            var timesOverlap = first.StartTime < second.EndTime && second.StartTime < first.EndTime;
+            return timesOverlap;
+        }
+
+        private List<List<SectionViewModel>> GenerateNonOverlappingSchedules(List<SectionViewModel> sections, List<SectionViewModel> currentSchedule)
+        {
+            // The list to hold all non-overlapping schedules
+            var allSchedules = new List<List<SectionViewModel>>();
+
+            // The base case: if there are no more sections to add, return the current schedule
+            if (!sections.Any())
+            {
+                allSchedules.Add(new List<SectionViewModel>(currentSchedule));
+                return allSchedules;
+            }
+
+            for (int i = 0; i < sections.Count; i++)
+            {
+                var nextSection = sections[i];
+
+                // Check if the next section overlaps with any section in the current schedule
+                bool overlaps = currentSchedule.Any(current => SectionsOverlap(current, nextSection));
+                if (!overlaps)
+                {
+                    // If it doesn't overlap, add it to the current schedule and continue building the schedule recursively
+                    currentSchedule.Add(nextSection);
+                    var schedulesWithNext = GenerateNonOverlappingSchedules(sections.Skip(i + 1).ToList(), currentSchedule);
+                    allSchedules.AddRange(schedulesWithNext);
+                    currentSchedule.Remove(nextSection);
+                }
+            }
+
+            // If we can't add any more sections without overlapping, return the current schedule
+            if (currentSchedule.Any())
+            {
+                allSchedules.Add(new List<SectionViewModel>(currentSchedule));
+            }
+
+            return allSchedules;
+        }
+
+
     }
 }

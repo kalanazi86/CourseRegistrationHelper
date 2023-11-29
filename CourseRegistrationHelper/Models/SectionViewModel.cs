@@ -48,6 +48,28 @@
             return daysNumeric.Select(n => daysOfWeek[n]).ToList();
         }
 
+        public List<DayOfWeek> DaysOfWeek
+        {
+            get
+            {
+                return Days?.Select(c => ParseDay(c)).ToList() ?? new List<DayOfWeek>();
+            }
+        }
+
+        private DayOfWeek ParseDay(char day)
+        {
+            return day switch
+            {
+                '1' => DayOfWeek.Sunday,
+                '2' => DayOfWeek.Monday,
+                '3' => DayOfWeek.Tuesday,
+                '4' => DayOfWeek.Wednesday,
+                '5' => DayOfWeek.Thursday,
+                // Add cases for '6' and '7' if your system uses them for Friday and Saturday
+                _ => throw new InvalidOperationException("Invalid day")
+            };
+        }
+
         public string Location { get; set; }
         public string Instructor { get; set; }
 

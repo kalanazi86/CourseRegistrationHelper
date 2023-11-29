@@ -41,6 +41,7 @@
 
 @if (Model.Sections != null && Model.Sections.Any())
 {
+    <form asp-controller="Courses" asp-action="GenerateSchedules" method="post">
     <table class="table">
     <thead>
         <tr>
@@ -57,29 +58,32 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var sectionS in Model.Sections)
-        {
-            <tr>
-                <td>@sectionS.CourseName</td>
-                <td>@sectionS.CourseSymbol</td>
-                <td>@sectionS.CreditHours</td>
-                <td>@sectionS.CRN</td>
-                <td>@sectionS.Days</td>
-                <td>@sectionS.Time</td>
-                <td>@sectionS.AvailableSeats out of @sectionS.Capacity</td> <!-- Assuming you have a property for total seats -->
-                <td>@sectionS.Location</td>
-                <td>@sectionS.Instructor</td>
-                <td>
-                    <input type="checkbox" name="selectedSections" value="@sectionS.CRN" @(sectionS.AvailableSeats > 0 ? "" : "disabled") />
-                </td>
-            </tr>
-        }
+                @for (int i = 0; i < Model.Sections.Count; i++)
+                {
+                    <tr>
+                        <td>@Model.Sections[i].CourseName</td>
+                        <td>@Model.Sections[i].CourseSymbol</td>
+                        <td>@Model.Sections[i].CreditHours</td>
+                        <td>@Model.Sections[i].CRN</td>
+                        <td>@Model.Sections[i].Days</td>
+                        <td>@Model.Sections[i].Time</td>
+                        <td>@Model.Sections[i].AvailableSeats out of @Model.Sections[i].Capacity</td>
+                        <td>@Model.Sections[i].Location</td>
+                        <td>@Model.Sections[i].Instructor</td>
+                        <td>
+                            <input type="checkbox" asp-for="Sections[i].IsSelected" />
+                            <input type="hidden" asp-for="Sections[i].SectionId" />
+                        </td>
+                    </tr>
+                }
+
     </tbody>
 </table>
+        <button type="submit" class="btn btn-primary">Generate</button>
+    </form>
 
 
-
-<form asp-action="GenerateSchedule" asp-controller="Courses" method="post">
+@* <form asp-action="GenerateSchedule" asp-controller="Courses" method="post">
     <table class="table">
         <thead>
             <!-- ... -->
@@ -100,7 +104,7 @@
     </table>
 
     <button type="submit" name="action" value="GenerateSchedule">Generate</button>
-</form>
+</form> *@
 
 
 
