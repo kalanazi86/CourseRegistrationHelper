@@ -5,101 +5,106 @@
     ViewData["Title"] = "Add Section";
 }
 
-<form asp-action="AddSection" method="post">
-    <div>
-        <label>Select University:</label>
-        <select asp-for="UniversityId" asp-items="Model.Universities" onchange="loadColleges()">
-            <option value="">-- Select University --</option>
-        </select>
-    </div>
-    <div>
-        <label>Select College:</label>
-        <select asp-for="CollegeId" asp-items="Model.Colleges" onchange="loadDepartments()">
-            <option value="">-- Select College --</option>
-        </select>
-    </div>
-    <div>
-        <label>Select Department:</label>
-        <select asp-for="DepartmentId" asp-items="Model.Departments" onchange="loadCourses(); loadInstructors();">
-            <option value="">-- Select Department --</option>
-        </select>
-    </div>
-    <div>
-        <label>Select Course:</label>
-        <select asp-for="CourseId" asp-items="Model.Courses" onchange="">
-            <option value="">-- Select Course --</option>
-        </select>
-    </div>
-    
-    <div>
-        <label>CRN:</label>
-        <input asp-for="CRN" type="text" />
-    </div>
-
-    <div>
-        <label>Capacity:</label>
-        <input asp-for="Capacity" type="text" />
-    </div>
-
-    <div>
-        <label>Location:</label>
-        <input asp-for="Location" type="text" />
-    </div>
-    <div>
-        <label>Room:</label>
-        <input asp-for="Room" type="text" />
-    </div>
-    <div>
-        <!-- Similar inputs for Capacity, Location, Room -->
-    </div>
-    <div>
-        <label>Days:  </label>
-        
-            <input type="checkbox" id="day1" name="Days" value="1" onchange="updateDays()" />
-            <label for="day1">Sunday</label>
-        
-        
-            <input type="checkbox" id="day2" name="Days" value="2" onchange="updateDays()" />
-            <label for="day2">Monday</label>
-        
-        
-            <input type="checkbox" id="day3" name="Days" value="3" onchange="updateDays()" />
-            <label for="day3">Tuesday</label>
-        
-        
-            <input type="checkbox" id="day4" name="Days" value="4" onchange="updateDays()" />
-            <label for="day3">Wednesday</label>
-        
-        
-            <input type="checkbox" id="day5" name="Days" value="5" onchange="updateDays()" />
-            <label for="day3">Thursday</label>
-        
-        <input type="hidden" asp-for="Days" id="Days" />
-    </div>
-
-    <div>
-        <label>Start Time:</label>
-        <select asp-for="StartTime" asp-items="Model.StartTimes">
-            <option value="">-- Select Start Time --</option>
-        </select>
-    </div>
-
-    <div>
-        <label>End Time:</label>
-        <select asp-for="EndTime" asp-items="Model.EndTimes">
-            <option value="">-- Select End Time --</option>
-        </select>
-    </div>
-    <div>
-        <label>Select Instructor:</label>
-        <select id="InstructorId" asp-for="InstructorId" asp-items="Model.Instructors">
-            <option value="">-- Select Instructor --</option>
-        </select>
-    </div>
+<div class="text-center my-5">
+    <h2>Adding Sections</h2>
+</div>
+<div class="container">
+    <form asp-action="AddSection" method="post">
+        <div class="row justify-content-center text-center">
+            <div class="col-md-4">
+                <div class="form-group mb-4 text-center">
+                    <select asp-for="UniversityId" asp-items="Model.Universities" class="form-control shadow text-center fw-bold" onchange="loadColleges()">
+                        <option value="">-- Select University --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4 text-center">
+                    <select asp-for="CollegeId" asp-items="Model.Colleges" class="form-control shadow text-center fw-bold" onchange="loadDepartments()">
+                        <option value="">-- Select College --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4 text-center">
+                    <select asp-for="DepartmentId" asp-items="Model.Departments" class="form-control shadow text-center fw-bold" onchange="loadCourses(); loadInstructors();">
+                        <option value="">-- Select Department --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4 text-center">
+                    <select asp-for="CourseId" asp-items="Model.Courses" class="form-control shadow text-center fw-bold" onchange="">
+                        <option value="">-- Select Course --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4 text-center">
+                    <input asp-for="CRN" type="text" class="form-control shadow text-center fw-bold" placeholder="Enter CRN" />
+                </div>
 
 
-    <button type="submit">Add Section</button>
-</form>
+                <div class="form-group mb-4 text-center">
+                    <input asp-for="Capacity" type="text" class="form-control shadow text-center fw-bold" placeholder="Enter Capacity" />
+                </div>
+
+                <div class="form-group mb-4 text-center">
+                    <input asp-for="Location" type="text" class="form-control shadow text-center fw-bold" placeholder="Enter Location" />
+                </div>
+
+                <div class="form-group mb-4 text-center">
+                    <input asp-for="Room" type="text" class="form-control shadow text-center fw-bold" placeholder="Enter Room" />
+                </div>
+                
+                <div class="form-group mt-5 mb-4 text-center">
+                    
+                    <div>
+                        <h4>Days and Time</h4>
+                    </div>
+
+
+                    <input type="checkbox" id="day1" name="Days" value="1" onchange="updateDays()" />
+                    <label for="day1">SUN</label><label> - </label>
+
+                    <input type="checkbox" id="day2" name="Days" value="2" onchange="updateDays()" />
+                    <label for="day2">MON</label><label> - </label>
+
+
+                    <input type="checkbox" id="day3" name="Days" value="3" onchange="updateDays()" />
+                    <label for="day3">TUE</label><label> - </label>
+
+
+                    <input type="checkbox" id="day4" name="Days" value="4" onchange="updateDays()" />
+                    <label for="day3">WED</label><label> - </label>
+
+
+                    <input type="checkbox" id="day5" name="Days" value="5" onchange="updateDays()" />
+                    <label for="day3">THU</label>
+
+                    <input type="hidden" asp-for="Days" id="Days" />
+                </div>
+
+                <div class ="form-group mb-4 text-center">
+                    <select asp-for="StartTime" class="form-control shadow text-center fw-bold" asp-items="Model.StartTimes">
+                        <option value="">-- Select Start Time --</option>
+                    </select>
+                </div>
+
+                <div class="form-group mb-4 text-center">
+                    <select asp-for="EndTime" class="form-control shadow text-center fw-bold" asp-items="Model.EndTimes">
+                        <option value="">-- Select End Time --</option>
+                    </select>
+                </div>
+                <div class="form-group mb-4 text-center">
+                    <select id="InstructorId" class="form-control shadow text-center fw-bold" asp-for="InstructorId" asp-items="Model.Instructors">
+                        <option value="">-- Select Instructor --</option>
+                    </select>
+                </div>
+            </div>
+            
+        </div>
+        <div class="row my-5 justify-content-center">
+            <div class="col-md-3">
+                <!-- Changed from col-md-6 to col-md-3 -->
+                <button type="submit" class="btn btn-primary w-100 my-1" style="font-size: 22px;">Add Section</button>
+            </div>
+        </div>
+    </form>
+</div>
+
 
 @section Scripts {
     <script>
